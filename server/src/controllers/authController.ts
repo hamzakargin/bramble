@@ -38,20 +38,25 @@ export async function authCallback(
       return;
     }
 
-    let user = await User.findOne({ clerkId });
+    const clerkUser = await clerkClient.users.getUser(clerkId);
 
-    if (!user) {
-      const clerkUser = await clerkClient.users.getUser(clerkId);
-
-      user = await User.create({
-        clerkId,
-        name: clerkUser.firstName
-          ? `${clerkUser.firstName} ${clerkUser.lastName || ""}`.trim()
-          : clerkUser.emailAddresses[0]?.emailAddress?.split("@")[0],
-        email: clerkUser.emailAddresses[0]?.emailAddress,
-        avatar: clerkUser.imageUrl,
-      });
-    }
+    const user = await User.findOneAndUpdate(
+      { clerkId },
+      {
+        $setOnInsert: {
+          clerkId,
+          name: clerkUser.firstName
+            ? `${clerkUser.firstName} ${clerkUser.lastName || ""}`.trim()
+            : clerkUser.emailAddresses[0]?.emailAddress?.split("@")[0],
+          email: clerkUser.emailAddresses[0]?.emailAddress,
+          avatar: clerkUser.imageUrl,
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+      },
+    );
 
     res.json(user);
   } catch (error) {
