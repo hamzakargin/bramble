@@ -5,16 +5,13 @@ import { Message } from "../models/Message";
 import { Chat } from "../models/Chat";
 import { User } from "../models/User";
 
-interface SocketWithUser extends Socket {
-  userId: string;
-}
 export const onlineUsers: Map<string, Set<string>> = new Map();
 export const initializeSocket = (httpServer: HttpServer) => {
   const allowedOrigins = [
     "http://localhost:8081",
     "http://localhost:5173",
-    process.env.FRONTEND_URL as string,
-  ];
+    process.env.FRONTEND_URL,
+  ].filter(Boolean) as string[];
   const io = new SocketServer(httpServer, {
     cors: { origin: allowedOrigins },
   });
@@ -28,7 +25,7 @@ export const initializeSocket = (httpServer: HttpServer) => {
       const clerkId = session.sub;
       const user = await User.findOne({ clerkId });
       if (!user) return next(new Error("User not found"));
-      (socket as SocketWithUser).userId = user._id.toString();
+      socket.data.userId = user._id.toString();
       next();
     } catch (error: any) {
       next(new Error(error.message));
@@ -36,7 +33,7 @@ export const initializeSocket = (httpServer: HttpServer) => {
   });
 
   io.on("connection", (socket) => {
-    const userId = (socket as SocketWithUser).userId;
+    const userId = socket.data.userId;
 
     socket.emit("online-users", { userIds: Array.from(onlineUsers.keys()) });
 
@@ -49,13 +46,19 @@ export const initializeSocket = (httpServer: HttpServer) => {
 
     socket.join(`user:${userId}`);
 
-    socket.on("join-chat", (chatId: string) => {
+    socket.on("join-chat", async (chatId: string) => {
+      const chat = await Chat.findOne({ _id: chatId, participants: userId });
+      if (!chat) {
+        socket.emit("socket-error", {
+          message: "Chat not found or access denied",
+        });
+        return;
+      }
       socket.join(`chat:${chatId}`);
     });
     socket.on("leave-chat", (chatId: string) => {
       socket.leave(`chat:${chatId}`);
     });
-
     socket.on(
       "send-message",
       async (data: { chatId: string; text: string }) => {
@@ -93,7 +96,6 @@ export const initializeSocket = (httpServer: HttpServer) => {
     );
 
     socket.on("typing", async (data) => {});
-
     socket.on("disconnect", () => {
       const sockets = onlineUsers.get(userId);
       if (!sockets) return;
@@ -103,6 +105,6 @@ export const initializeSocket = (httpServer: HttpServer) => {
         socket.broadcast.emit("user-offline", { userId });
       }
     });
-    return io;
   });
+  return io;
 };
