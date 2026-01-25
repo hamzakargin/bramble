@@ -10,6 +10,9 @@ export async function getChats(
 ) {
   try {
     const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     const chats = await Chat.find({ participants: userId })
       .populate("participants", "name email avatar")
       .populate("lastMessage")
@@ -43,6 +46,10 @@ export async function getOrCreateChat(
 ) {
   try {
     const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const { participantId } = req.params;
 
     if (!participantId) {

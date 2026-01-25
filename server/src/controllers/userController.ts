@@ -9,6 +9,9 @@ export async function getUsers(
 ) {
   try {
     const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     const users = await User.find({ _id: { $ne: userId } })
       .select({
         name: 1,
