@@ -4,12 +4,11 @@ import { verifyToken } from "@clerk/express";
 import { Message } from "../models/Message";
 import { Chat } from "../models/Chat";
 import { User } from "../models/User";
-import { isClassStaticBlockDeclaration } from "typescript";
 
 interface SocketWithUser extends Socket {
   userId: string;
 }
-export const onlineUsers: Map<string, string> = new Map();
+export const onlineUsers: Map<string, Set<string>> = new Map();
 export const initializeSocket = (httpServer: HttpServer) => {
   const allowedOrigins = [
     "http://localhost:8081",
@@ -41,9 +40,12 @@ export const initializeSocket = (httpServer: HttpServer) => {
 
     socket.emit("online-users", { userIds: Array.from(onlineUsers.keys()) });
 
-    onlineUsers.set(userId, socket.id);
-
-    socket.broadcast.emit("user-online", { userId });
+    const sockets = onlineUsers.get(userId) ?? new Set<string>();
+    sockets.add(socket.id);
+    onlineUsers.set(userId, sockets);
+    if (sockets.size === 1) {
+      socket.broadcast.emit("user-online", { userId });
+    }
 
     socket.join(`user:${userId}`);
 
@@ -80,7 +82,9 @@ export const initializeSocket = (httpServer: HttpServer) => {
 
           io.to(`chat:${chatId}`).emit("new-message", message);
           for (const participantId of chat.participants) {
-            io.to(`user:${participantId}`).emit("new-message", message);
+            io.to(`user:${participantId}`)
+              .except(`chat:${chatId}`)
+              .emit("new-message", message);
           }
         } catch (error) {
           socket.emit("socket-error", { message: "failed to send message" });
@@ -91,10 +95,14 @@ export const initializeSocket = (httpServer: HttpServer) => {
     socket.on("typing", async (data) => {});
 
     socket.on("disconnect", () => {
-      onlineUsers.delete(userId);
-
-      socket.broadcast.emit("user-offline", { userId });
+      const sockets = onlineUsers.get(userId);
+      if (!sockets) return;
+      sockets.delete(socket.id);
+      if (sockets.size === 0) {
+        onlineUsers.delete(userId);
+        socket.broadcast.emit("user-offline", { userId });
+      }
     });
+    return io;
   });
-  return io;
 };
