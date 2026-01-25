@@ -1,8 +1,8 @@
 import mongoose, { Schema, type Document } from "mongoose";
 
 export interface IChat extends Document {
-  participants: mongoose.Types.ObjectId;
-  lastMessage: mongoose.Types.ObjectId;
+  participants: mongoose.Types.ObjectId[];
+  lastMessage?: mongoose.Types.ObjectId;
   lastMessageAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -10,11 +10,13 @@ export interface IChat extends Document {
 
 const ChatSchema = new Schema<IChat>(
   {
-    participants: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: "User",
-    },
+    participants: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+    ],
     lastMessage: {
       type: Schema.Types.ObjectId,
       ref: "Message",
@@ -25,9 +27,7 @@ const ChatSchema = new Schema<IChat>(
       default: Date.now,
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
 export const Chat = mongoose.model("Chat", ChatSchema);

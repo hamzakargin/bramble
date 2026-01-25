@@ -8,6 +8,7 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
 const UserSchema = new Schema<IUser>(
   {
     clerkId: {
@@ -32,6 +33,9 @@ const UserSchema = new Schema<IUser>(
       default: "",
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
+
 export const User = mongoose.model("User", UserSchema);
