@@ -14,6 +14,7 @@ const AuthSync = () => {
 
       syncUser(undefined, {
         onSuccess: (data) => {
+          hasSynced.current = true;
           console.log("User synced with backend:", data.name);
         },
         onError: (error) => {
