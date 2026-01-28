@@ -13,7 +13,8 @@ import useSocialAuth from "../../hooks/useSocialAuth";
 const { width, height } = Dimensions.get("window");
 const AuthScreen = () => {
   const { handleSocialAuth, loadingStrategy } = useSocialAuth();
-  const isLoading = loadingStrategy !== "null";
+  const isLoading = loadingStrategy !== null;
+
   return (
     <View className="flex-1 bg-surface-dark">
       <View className="absolute inset-0 overflow-hidden"></View>
