@@ -4,21 +4,21 @@ import { useChats } from "@/hooks/useChats";
 import { Chat } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import {
-  Text,
-  ActivityIndicator,
-  View,
-  FlatList,
-  Pressable,
-} from "react-native";
+import { Text, View, FlatList, Pressable } from "react-native";
 
 const ChatsTab = () => {
   const router = useRouter();
-  const { data: chats, isLoading, error } = useChats();
+  const { data: chats, isLoading, error, refetch } = useChats();
   if (isLoading) {
     return (
       <View className="flex-1 bg-surface items-center justify-center">
-        <ActivityIndicator size={"large"} color={"#f4A251"} />
+        <Text className="text-red-500">Failed to load chats</Text>
+        <Pressable
+          onPress={() => refetch()}
+          className="mt-4 px-4 py-2 bg-primary rounded-lg"
+        >
+          <Text className="text-foreground">Retry</Text>
+        </Pressable>
       </View>
     );
   }
@@ -31,6 +31,11 @@ const ChatsTab = () => {
     );
   }
   const handleChatpress = (chat: Chat) => {
+    if (!chat.participant) {
+      console.warn("Chat has no participant");
+      return;
+    }
+
     router.push({
       pathname: "/chat/[id]",
       params: {

@@ -21,7 +21,7 @@ const ChatItem = ({ chat, onPress }: { chat: Chat; onPress: () => void }) => {
           style={{ width: 56, height: 56, borderRadius: 999 }}
         />
         {isOnline && (
-          <view className="absolute bottom-0 size-4 right-0 w-4 h-4 bg-green-500 rounded-full border-[3px] border-surface" />
+          <View className="absolute bottom-0 size-4 right-0 w-4 h-4 bg-green-500 rounded-full border-[3px] border-surface" />
         )}
       </View>
       <View className="flex-1 ml-4">
@@ -33,7 +33,7 @@ const ChatItem = ({ chat, onPress }: { chat: Chat; onPress: () => void }) => {
           </Text>
           <View className="flex-row items-center gap-2">
             {hasUnread && (
-              <view className="w-2.5 h-2.5 bg-primary rounded-full" />
+              <View className="w-2.5 h-2.5 bg-primary rounded-full" />
             )}
             <Text className="text-xs text-subtile-foreground">
               {chat.lastMessageAt
