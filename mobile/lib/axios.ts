@@ -13,15 +13,19 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      // Sadece 503 hariç logla
-      if (error.response.status !== 503) {
-        console.error(
-          `API request failed: ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
-          {
-            status: error.response.status,
-          },
-        );
-      }
+      console.error(
+        `API request failed: ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+        {
+          status: error.response.status,
+          endpoint: error.config?.url,
+          method: error.config?.method,
+        },
+      );
+    } else if (error.request) {
+      console.warn("API request failed - no response", {
+        endpoint: error.config?.url,
+        method: error.config?.method,
+      });
     }
     return Promise.reject(error);
   },
