@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuth } from "@clerk/clerk-expo";
 import { useCallback } from "react";
 
-const API_URL = "https://whisper-ijeje.sevalla.app/api";
+const API_URL = "https://bramble-thmm6.sevalla.app/api";
 
 const api = axios.create({
   baseURL: API_URL,

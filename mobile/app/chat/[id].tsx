@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 const ChatDetailScreen = () => {
   return (
     <View>
-      <Text>ChatDetailScreen</Text>
+      <Text className="text-white">ChatDetailScreen</Text>
     </View>
   );
 };
