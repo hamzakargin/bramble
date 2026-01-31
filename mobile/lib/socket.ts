@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { QueryClient } from "@tanstack/react-query";
 import { Chat, Message, MessageSender } from "@/types";
 
-const SOCKET_URL = "https://whisper-ijeje.sevalla.app";
+const SOCKET_URL = "https://bramble-thmm6.sevalla.app/";
 
 interface SocketState {
   socket: Socket | null;
@@ -36,6 +36,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   queryClient: null,
 
   connect: (token, queryClient) => {
+    console.log("🚀 CONNECT FUNCTION CALLED");
     const existingSocket = get().socket;
     if (existingSocket?.connected) return;
 

@@ -38,7 +38,7 @@ const ChatItem = ({ chat, onPress }: { chat: Chat; onPress: () => void }) => {
             {hasUnread && (
               <View className="w-2.5 h-2.5 bg-primary rounded-full" />
             )}
-            <Text className="text-xs text-subtile-foreground">
+            <Text className="text-xs text-white">
               {chat.lastMessageAt
                 ? formatDistanceToNow(new Date(chat.lastMessageAt), {
                     addSuffix: false,
