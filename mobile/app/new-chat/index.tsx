@@ -1,6 +1,7 @@
 import UserItem from "@/components/UserItem";
 import { useGetOrCreateChat } from "@/hooks/useChats";
 import { useUsers } from "@/hooks/useUsers";
+import { useSocketStore } from "@/lib/socket";
 import { User } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -21,6 +22,8 @@ const NewChatScreen = () => {
   const { data: allUsers, isLoading } = useUsers();
   const { mutate: getOrCreateChat, isPending: isCreatingChat } =
     useGetOrCreateChat();
+
+  const { onlineUsers } = useSocketStore();
 
   const users = allUsers?.filter((u) => {
     if (!searchQuery.trim()) return true;
@@ -118,7 +121,7 @@ const NewChatScreen = () => {
                   <UserItem
                     key={user._id}
                     user={user}
-                    isOnline={true}
+                    isOnline={onlineUsers.has(user._id)}
                     onPress={() => handleUserSelect(user)}
                   />
                 ))}
